@@ -20,6 +20,12 @@ colors = {
      Input(component_id='n-input', component_property='value')]
 )
 
+
+# @app.callback(
+#     Output(component_id='div-2', component_property='figure'),
+#     [Input(component_id='pokemons', component_property='value')]
+# )
+
 def update_table(generation, n):
     df_gen = df[['Name','Total']].loc[df['Generation']==generation]
     df_gen = df_gen.sort_values('Total', ascending=False).head(n)
@@ -29,12 +35,6 @@ def update_table(generation, n):
         data=df_gen.to_dict("rows"),
         style_table = {'width': '400px', 'height': '500px','display': 'inline-block'}
     )
-
-
-@app.callback(
-    Output(component_id='div-2', component_property='children'),
-    [Input(component_id='pokemons', component_property='value')]
-)
 
 def update_figure(pokemons):
     data=[]
@@ -132,14 +132,14 @@ app.layout = html.Div(children=[
     html.Div(children =[
         html.H1(children = 'Stats de Pok'),
         dcc.Dropdown(
-        id="pokemons",
+        id="pokemon-dropdown",
         options=[{'label': i, 'value': i} for i in df['Name'].unique()],
-        value= 'Bulbasaur',
+        value= pokemon,
         style = {'width': '1000px'},
         multi=True
     ),
-    html.Div(id='div-2',style={'width': '40%','display': 'inline-block'}),
-    dcc.Graph(id='scatter-polar', figure=fig_3,style={'margin-left': '50px'}),
+    html.Div(id='pokemon-div',style={'width': '40%','display': 'inline-block'}),
+    dcc.Graph(id='pokemon-graph', figure=update_figure(pokemon),style={'margin-left': '50px'}),
     ]),
 
     html.H3('Les top et les flop des types de Pokemon'),
@@ -149,6 +149,14 @@ app.layout = html.Div(children=[
 
     ])
 ])
+
+@app.callback(
+    Output(component_id='pokemon-graph', component_property='figure'),
+    [Input(component_id='pokemon-dropdown', component_property='value')]
+)
+
+def update_pokemon_graph(pokemon):
+    return update_figure(pokemon)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
